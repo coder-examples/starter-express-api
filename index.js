@@ -1,9 +1,13 @@
 const express = require('express');
 const getConnection = require('./connect');
+const cors = require("cors");
 
 const con = getConnection();
 
 const app = express()
+
+app.use(cors());
+
 app.all('/', (req, res) => {
     let body;
     //region Update views
