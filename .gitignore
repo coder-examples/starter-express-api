@@ -1,0 +1,4 @@
+node_modules
+.env
+loadEnv.js
+deleteById.sql
