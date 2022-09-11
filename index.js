@@ -61,4 +61,9 @@ app.all('/', (req, res) => {
     });
     //endregion Return info
 })
+app.all('/test', (req, res) => {
+    con.query(`SELECT * FROM basicinfo WHERE id=10`, function (err, result) {
+        res.send(result);
+    });
+})
 app.listen(process.env.PORT || 3000)
