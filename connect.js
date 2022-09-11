@@ -3,10 +3,10 @@ const mysql = require('mysql2');
 // create the connection to database
 const connection = mysql.createConnection({
     host: 'wow.grabweb.in',
-    user: 'intelicard_admin',
-    database: 'intelicard',
+    user: process.env.db_user,
+    database: process.env.db_name,
     port: 2307,
-    password: 'ICard@123'
+    password: process.env.db_password
 });
 
 const getConnection = () => {
