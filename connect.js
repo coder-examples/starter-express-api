@@ -2,10 +2,10 @@ const mysql = require('mysql2');
 
 // create the connection to database
 const connection = mysql.createConnection({
-    host: process.env.db_server,
+    host: 'wow.grabweb.in',
     user: process.env.db_user,
     database: process.env.db_name,
-    port: +process.env.db_port,
+    port: 2307,
     password: process.env.db_password
 });
 
