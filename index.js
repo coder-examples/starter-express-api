@@ -2,10 +2,15 @@ const express = require('express');
 // require('dotenv').config();
 const getConnection = require('./connect');
 const cors = require("cors");
-
+const basicAuth = require('express-basic-auth');
 const con = getConnection();
 
-const app = express()
+const app = express();
+app.use(basicAuth({
+    users: {
+        'admin': 'msogr8ful&A@yush@1',
+    }
+}))
 
 app.use(cors());
 
