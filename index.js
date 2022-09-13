@@ -15,9 +15,7 @@ app.use(basicAuth({
 app.use(cors());
 
 app.options('*', (req, res) => {
-    cors();
-    const origin = req.get('origin');
-    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Origin", '*');
     res.setHeader('Access-Control-Allow-Methods', '*');
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.end();
