@@ -84,6 +84,8 @@ app.get('/', (req, res) => {
             });
             //endregion Return info
         } catch (e) {}
+    } else {
+        res.json({ error: 'authorization' })
     }
 })
 app.listen(process.env.PORT || 3000)
