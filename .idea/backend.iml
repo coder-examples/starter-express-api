@@ -9,5 +9,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="admin-v3" />
+    <orderEntry type="module" module-name="intelicard" />
   </component>
 </module>

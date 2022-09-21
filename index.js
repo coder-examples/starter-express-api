@@ -3,11 +3,10 @@ const express = require('express');
 const getConnection = require('./connect');
 const cors = require("cors");
 const con = getConnection();
-const bodyParser = require('body-parser');
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.get('/', (req, res) => {
     if(req.headers['auth'] === `${btoa(process.env.AUTH_USER + ':' + process.env.AUTH_PASS)}`) {
@@ -98,18 +97,21 @@ app.post('/insert', (req, res) => {
     if(req.headers['auth'] === `${btoa(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS)}`) {
         try {
             const { expire, logo = '', company_name = 'NULL', holder_name = 'NULL', holder_post = 'NULL', email = 'NULL', map = 'NULL', facebook = 'NULL', instagram = 'NULL', twitter = 'NULL', youtube = 'NULL', nature = 'NULL', product_or_service = 1, address = 'NULL', website = 'NULL' } = req.body;
+            console.log(req.body['expire']);
             const {photos = [], videos = [], numbers = [], about = [], products = []} = req.body;
             con.query(`INSERT INTO basicinfo 
                             (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire) 
                             VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire};")` , (err, result) => {
                 if(err) {
-                    error = true;
+                    error = 'basicinfo: ' + `INSERT INTO basicinfo 
+                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire) 
+                            VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire};")`;
                 } else {
                     main_id = result.insertId;
                 }
             })
             setTimeout(() => {
-                if(photos !== []) {
+                if(JSON.stringify(photos) != JSON.stringify([])) {
                     let str = "";
                     for (let i = 0; i < photos.length; i++) {
                         str += `("${photos[i]}", ${main_id}),`;
@@ -121,7 +123,7 @@ app.post('/insert', (req, res) => {
                         }
                     })
                 }
-                if(numbers !== []) {
+                if(JSON.stringify(numbers) != JSON.stringify([])) {
                     let str = "";
                     for (let i = 0; i < numbers.length; i++) {
                         str += `("${numbers[i]}", ${main_id}),`;
@@ -133,7 +135,7 @@ app.post('/insert', (req, res) => {
                         }
                     })
                 }
-                if(videos !== []) {
+                if(JSON.stringify(videos) != JSON.stringify([])) {
                     let str = "";
                     for (let i = 0; i < videos.length; i++) {
                         str += `("${videos[i]}", ${main_id}),`;
@@ -145,7 +147,7 @@ app.post('/insert', (req, res) => {
                         }
                     })
                 }
-                if(about !== []) {
+                if(JSON.stringify(about) !== JSON.stringify([])) {
                     let str = "";
                     for (let i = 0; i < about.length; i++) {
                         str += `("${about[i]}", ${main_id}),`;
@@ -157,7 +159,7 @@ app.post('/insert', (req, res) => {
                         }
                     })
                 }
-                if(products !== []) {
+                if(JSON.stringify(products) != JSON.stringify([])) {
                     let str = "";
                     for (let i = 0; i < products.length; i++) {
                         str += `("${products[i]['name']}", "${products[i]['image']}", ${main_id}),`;
@@ -168,8 +170,11 @@ app.post('/insert', (req, res) => {
                             error = true;
                         }
                     })
-                    console.log(query)
-                    return res.json({error: error, id: main_id});
+                }
+                if(error) {
+                    return res.status(404).json({error: error});
+                } else {
+                    return res.status(200).json({error:false,id:main_id});
                 }
             }, 2000)
         } catch (e) {res.send('Some Random error:\n' + e)}
@@ -177,5 +182,5 @@ app.post('/insert', (req, res) => {
         res.status(401).json({ error: 'authorization' })
     }
 })
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 4200, () => {
 })
