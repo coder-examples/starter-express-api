@@ -1,5 +1,5 @@
 const express = require('express');
-// require('dotenv').config()
+require('dotenv').config()
 const getConnection = require('./connect');
 const cors = require("cors");
 const con = getConnection();
@@ -117,6 +117,7 @@ app.post('/insert', (req, res) => {
                         str += `("${photos[i]}", ${main_id}),`;
                     }
                     const query = `INSERT INTO photos (photo_url, main_id) VALUES ${str.slice(0,-1)};`;
+                    console.log(query);
                     con.query(query, (err) => {
                         if(err) {
                             error = true;
@@ -129,6 +130,7 @@ app.post('/insert', (req, res) => {
                         str += `("${numbers[i]}", ${main_id}),`;
                     }
                     const query = `INSERT INTO numbers (number, main_id) VALUES ${str.slice(0,-1)};`;
+                    console.log(query);
                     con.query(query, (err) => {
                         if(err) {
                             error = true;
@@ -141,6 +143,7 @@ app.post('/insert', (req, res) => {
                         str += `("${videos[i]}", ${main_id}),`;
                     }
                     const query = `INSERT INTO videos (video_url, main_id) VALUES ${str.slice(0,-1)};`;
+                    console.log(query);
                     con.query(query, (err) => {
                         if(err) {
                             error = true;
@@ -153,6 +156,7 @@ app.post('/insert', (req, res) => {
                         str += `("${about[i]}", ${main_id}),`;
                     }
                     const query = `INSERT INTO about (text, main_id) VALUES ${str.slice(0,-1)};`;
+                    console.log(query);
                     con.query(query, (err) => {
                         if(err) {
                             error = true;
@@ -165,6 +169,7 @@ app.post('/insert', (req, res) => {
                         str += `("${products[i]['name']}", "${products[i]['image']}", ${main_id}),`;
                     }
                     const query = `INSERT INTO products (name, image, main_id) VALUES ${str.slice(0,-1)};`;
+                    console.log(query);
                     con.query(query, (err) => {
                         if(err) {
                             error = true;
