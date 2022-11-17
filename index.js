@@ -12,9 +12,6 @@ app.get('/', (req, res) => {
         if(req.query?.id && req.query?.ip) {
             try {
                 let body;
-                if(req.query.id === undefined || req.query.ip === undefined) {
-                    return res.json({error:true})
-                }
                 //region Update views
                 try {
                     con.query(`SELECT * FROM ip WHERE id=${req.query.id} AND ip='${req.query.ip}'`, function (err, result) {
