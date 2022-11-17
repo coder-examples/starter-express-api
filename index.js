@@ -27,11 +27,6 @@ app.get('/', (req, res) => {
                 //region Return info
                 con.query(`SELECT * FROM basicinfo WHERE id=${req.query.id}`, function (err, result) {
                     body = result;
-                    if (!body) {
-                        return res.json({ error: true })
-                    } else {
-                        body[0]['expired'] = false;
-                    }
                 });
                 con.query(`SELECT * FROM photos WHERE main_id=${req.query.id}`, function (err, result) {
                     if (!body) {
