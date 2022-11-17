@@ -9,10 +9,10 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
     // if(req.headers['auth'] === `${btoa(process.env.AUTH_USER + ':' + process.env.AUTH_PASS)}`) {
+    let body;
     if(true) {
         if(req.query?.id && req.query?.ip) {
             try {
-                let body;
                 //region Update views
                 try {
                     con.query(`SELECT * FROM ip WHERE id=${req.query.id} AND ip='${req.query.ip}'`, function (err, result) {
