@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
                 //region Return info
                 con.query(`SELECT * FROM basicinfo WHERE id=${req.query.id}`, function (err, result) {
                     body = result;
-                    console.log({body, result});
+                    console.log({body, result, err});
                 });
                 con.query(`SELECT * FROM photos WHERE main_id=${req.query.id}`, function (err, result) {
                     if (!body) {
