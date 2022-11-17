@@ -8,7 +8,8 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    if(req.headers['auth'] === `${btoa(process.env.AUTH_USER + ':' + process.env.AUTH_PASS)}`) {
+    // if(req.headers['auth'] === `${btoa(process.env.AUTH_USER + ':' + process.env.AUTH_PASS)}`) {
+    if(true) {
         if(req.query?.id && req.query?.ip) {
             try {
                 let body;
@@ -97,12 +98,12 @@ app.post('/insert', (req, res) => {
             const { expire, logo = '', company_name = 'NULL', holder_name = 'NULL', holder_post = 'NULL', email = 'NULL', map = 'NULL', facebook = 'NULL', instagram = 'NULL', twitter = 'NULL', youtube = 'NULL', nature = 'NULL', product_or_service = 1, address = 'NULL', website = 'NULL' } = req.body;
             console.log(req.body['expire']);
             const {photos = [], videos = [], numbers = [], about = [], products = []} = req.body;
-            con.query(`INSERT INTO basicinfo 
-                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire) 
+            con.query(`INSERT INTO basicinfo
+                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire)
                             VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire};")` , (err, result) => {
                 if(err) {
-                    error = 'basicinfo: ' + `INSERT INTO basicinfo 
-                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire) 
+                    error = 'basicinfo: ' + `INSERT INTO basicinfo
+                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire)
                             VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire};")`;
                 } else {
                     main_id = result.insertId;
