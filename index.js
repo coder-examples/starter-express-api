@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    // if(req.headers['auth'] === `${btoa(process.env.AUTH_USER + ':' + process.env.AUTH_PASS)}`) {
+    // if(req.headers['auth'] === `${Buffer.from(process.env.AUTH_USER + ':' + process.env.AUTH_PASS).toString('base64')}`) {
     let body;
     if(true) {
         if(req.query?.id && req.query?.ip) {
