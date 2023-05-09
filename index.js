@@ -89,7 +89,7 @@ app.get('/', (req, res) => {
 app.post('/insert', (req, res) => {
     let error = false;
     let main_id = 1;
-    if(req.headers['auth'] === `${btoa(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS)}`) {
+    if(req.headers['auth'] === `${Buffer.from(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS).toString('base64')}`) {
         try {
             const { expire, logo = '', company_name = 'NULL', holder_name = 'NULL', holder_post = 'NULL', email = 'NULL', map = 'NULL', facebook = 'NULL', instagram = 'NULL', twitter = 'NULL', youtube = 'NULL', nature = 'NULL', product_or_service = 1, address = 'NULL', website = 'NULL' } = req.body;
             console.log(req.body['expire']);
