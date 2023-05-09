@@ -1,189 +1,185 @@
 const express = require('express');
-const getConnection = require('./connect');
-const cors = require("cors");
-const con = getConnection();
+const bodyParser = require('body-parser');
+const mysql = require('mysql');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
+
+const connection = mysql.createConnection({
+    host: 'wow.grabweb.in',
+    user: process.env.db_user,
+    password: process.env.db_password,
+    database: process.env.db_name,
+    port: 2307
+});
 
 app.get('/', (req, res) => {
     // if(req.headers['auth'] === `${Buffer.from(process.env.AUTH_USER + ':' + process.env.AUTH_PASS).toString('base64')}`) {
     let body;
-    if(true) {
-        if(req.query?.id && req.query?.ip) {
+    if (req.query?.id && req.query?.ip) {
+        try {
+            //region Update views
             try {
-                //region Update views
+                connection.query(`SELECT * FROM ip WHERE id=${req.query.id} AND ip='${req.query.ip}'`, function (err, result) {
+                    if (result?.length !== 1 || !result) {
+                        connection.query(`INSERT INTO ip (id, ip) VALUES (${req.query.id}, '${req.query.ip}')`);
+                        // Update views in basicinfo
+                        connection.query(`UPDATE basicinfo SET views=views+1 WHERE id=${req.query.id}`);
+                    }
+                });
+            } catch (e) {
+            }
+            //endregion Update views
+            //region Return info
+            connection.query(`SELECT * FROM basicinfo WHERE id=${req.query.id}`, function (err, result) {
+                body = result;
+                console.log({body, result, err});
+            });
+            connection.query(`SELECT * FROM photos WHERE main_id=${req.query.id}`, function (err, result) {
+                if (!body) {
+                    return;
+                }
+                body[0].photos = [];
+                for (let i = 0; i < result.length; i++) {
+                    body[0]['photos'].push(result[i]['photo_url']);
+                }
+            });
+            connection.query(`SELECT * FROM about WHERE main_id=${req.query.id}`, function (err, result) {
+                if (!body) {
+                    return;
+                } else {
+                    body[0].about = [];
+                    for (let i = 0; i < result.length; i++) {
+                        body[0]['about'].push(result[i]['text']);
+                    }
+                }
+            });
+            connection.query(`SELECT * FROM videos WHERE main_id=${req.query.id}`, function (err, result) {
+                if (!body) {
+                    return;
+                }
+                body[0].videos = [];
+                for (let i = 0; i < result.length; i++) {
+                    body[0]['videos'].push(result[i]['video_url']);
+                }
+            });
+            connection.query(`SELECT * FROM products WHERE main_id=${req.query.id}`, function (err, result) {
+                if (!body) {
+                    return;
+                }
+                body[0].products = [];
+                for (let i = 0; i < result.length; i++) {
+                    body[0]['products'].push({name: result[i]['name'], image: result[i]['image']});
+                }
+            });
+            connection.query(`SELECT * FROM numbers WHERE main_id=${req.query.id}`, function (err, result) {
+                if (!body) {
+                    return;
+                }
+                body[0].numbers = [];
+                for (let i = 0; i < result.length; i++) {
+                    body[0]['numbers'].push(result[i]['phone']);
+                }
                 try {
-                    con.query(`SELECT * FROM ip WHERE id=${req.query.id} AND ip='${req.query.ip}'`, function (err, result) {
-                        if (result?.length !== 1 || !result) {
-                            con.query(`INSERT INTO ip (id, ip) VALUES (${req.query.id}, '${req.query.ip}')`);
-                            // Update views in basicinfo
-                            con.query(`UPDATE basicinfo SET views=views+1 WHERE id=${req.query.id}`);
-                        }
-                    });
-                } catch (e) {}
-                //endregion Update views
-                //region Return info
-                con.query(`SELECT * FROM basicinfo WHERE id=${req.query.id}`, function (err, result) {
-                    body = result;
-                    console.log({body, result, err});
-                });
-                con.query(`SELECT * FROM photos WHERE main_id=${req.query.id}`, function (err, result) {
-                    if (!body) {
-                        return;
-                    }
-                    body[0].photos = [];
-                    for (let i = 0; i < result.length; i++) {
-                        body[0]['photos'].push(result[i]['photo_url']);
-                    }
-                });
-                con.query(`SELECT * FROM about WHERE main_id=${req.query.id}`, function (err, result) {
-                    if (!body) {
-                        return;
-                    } else {
-                        body[0].about = [];
-                        for (let i = 0; i < result.length; i++) {
-                            body[0]['about'].push(result[i]['text']);
-                        }
-                    }
-                });
-                con.query(`SELECT * FROM videos WHERE main_id=${req.query.id}`, function (err, result) {
-                    if (!body) {
-                        return;
-                    }
-                    body[0].videos = [];
-                    for (let i = 0; i < result.length; i++) {
-                        body[0]['videos'].push(result[i]['video_url']);
-                    }
-                });
-                con.query(`SELECT * FROM products WHERE main_id=${req.query.id}`, function (err, result) {
-                    if (!body) {
-                        return;
-                    }
-                    body[0].products = [];
-                    for (let i = 0; i < result.length; i++) {
-                        body[0]['products'].push({name: result[i]['name'], image: result[i]['image']});
-                    }
-                });
-                con.query(`SELECT * FROM numbers WHERE main_id=${req.query.id}`, function (err, result) {
-                    if (!body) {
-                        return;
-                    }
-                    body[0].numbers = [];
-                    for (let i = 0; i < result.length; i++) {
-                        body[0]['numbers'].push(result[i]['phone']);
-                    }
-                    try {
-                        res.send(body[0]);
-                    } catch (e) {}
-                });
-                //endregion Return info
-            } catch (e) {}
+                    res.send(body[0]);
+                } catch (e) {
+                }
+            });
+            //endregion Return info
+        } catch (e) {
         }
-    } else {
-        res.status(401).json({ error: 'authorization' })
     }
 })
 
 app.post('/insert', (req, res) => {
-    let error = false;
-    let main_id = 1;
-    console.log(1,Buffer.from(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS).toString('base64'))
-    console.log(2,req.headers['auth'])
-    console.log(3,{a:process.env.AUTH_ADMIN, b:process.env.AUTH_ADMIN_PASS})
-    if(req.headers['auth'] === `${Buffer.from(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS).toString('base64')}`) {
-        try {
-            const { expire, logo = '', company_name = 'NULL', holder_name = 'NULL', holder_post = 'NULL', email = 'NULL', map = 'NULL', facebook = 'NULL', instagram = 'NULL', twitter = 'NULL', youtube = 'NULL', nature = 'NULL', product_or_service = 1, address = 'NULL', website = 'NULL' } = req.body;
-            console.log(req.body['expire']);
-            const {photos = [], videos = [], numbers = [], about = [], products = []} = req.body;
-            con.query(`INSERT INTO basicinfo
-                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire)
-                            VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire}")` , (err, result) => {
-                if(err) {
-                    error = 'basicinfo: ' + `INSERT INTO basicinfo
-                            (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire)
-                            VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire};")`;
-                } else {
-                    main_id = result.insertId;
-                }
-            })
-            setTimeout(() => {
-                if(JSON.stringify(photos) != JSON.stringify([])) {
-                    let str = "";
-                    for (let i = 0; i < photos.length; i++) {
-                        str += `("${photos[i]}", ${main_id}),`;
-                    }
-                    const query = `INSERT INTO photos (photo_url, main_id) VALUES ${str.slice(0,-1)};`;
-                    console.log(query);
-                    con.query(query, (err) => {
-                        if(err) {
-                            error = true;
-                        }
-                    })
-                }
-                if(JSON.stringify(numbers) != JSON.stringify([])) {
-                    let str = "";
-                    for (let i = 0; i < numbers.length; i++) {
-                        str += `("${numbers[i]}", ${main_id}),`;
-                    }
-                    const query = `INSERT INTO numbers (number, main_id) VALUES ${str.slice(0,-1)};`;
-                    console.log(query);
-                    con.query(query, (err) => {
-                        if(err) {
-                            error = true;
-                        }
-                    })
-                }
-                if(JSON.stringify(videos) != JSON.stringify([])) {
-                    let str = "";
-                    for (let i = 0; i < videos.length; i++) {
-                        str += `("${videos[i]}", ${main_id}),`;
-                    }
-                    const query = `INSERT INTO videos (video_url, main_id) VALUES ${str.slice(0,-1)};`;
-                    console.log(query);
-                    con.query(query, (err) => {
-                        if(err) {
-                            error = true;
-                        }
-                    })
-                }
-                if(JSON.stringify(about) !== JSON.stringify([])) {
-                    let str = "";
-                    for (let i = 0; i < about.length; i++) {
-                        str += `("${about[i]}", ${main_id}),`;
-                    }
-                    const query = `INSERT INTO about (text, main_id) VALUES ${str.slice(0,-1)};`;
-                    console.log(query);
-                    con.query(query, (err) => {
-                        if(err) {
-                            error = true;
-                        }
-                    })
-                }
-                if(JSON.stringify(products) != JSON.stringify([])) {
-                    let str = "";
-                    for (let i = 0; i < products.length; i++) {
-                        str += `("${products[i]['name']}", "${products[i]['image']}", ${main_id}),`;
-                    }
-                    const query = `INSERT INTO products (name, image, main_id) VALUES ${str.slice(0,-1)};`;
-                    console.log(query);
-                    con.query(query, (err) => {
-                        if(err) {
-                            error = true;
-                        }
-                    })
-                }
-                if(error) {
-                    return res.status(404).json({error: error});
-                } else {
-                    return res.status(200).json({error:false,id:main_id});
-                }
-            }, 2000)
-        } catch (e) {res.send('Some Random error:\n' + e)}
-    } else {
-        res.status(401).json({ error: 'authorization' })
-    }
-})
+    const { products, company_name, logo, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, website, photos, videos, about, numbers, expire } = req.body;
+
+    const basicInfo = {
+        logo,
+        company_name,
+        holder_name,
+        holder_post,
+        email,
+        map,
+        facebook,
+        instagram,
+        twitter,
+        youtube,
+        nature,
+        product_or_service,
+        address,
+        website,
+        expire,
+        full_logo: null // since full_logo is not in the request payload, I'm setting it to null here
+    };
+
+    connection.query('INSERT INTO basicinfo SET ?', basicInfo, (error, results, fields) => {
+        const authHeader = req.headers.auth;
+        const expectedAuth = `${process.env.AUTH_ADMIN}:${process.env.AUTH_ADMIN_PASS}`;
+
+        if (authHeader !== expectedAuth) {
+            res.status(401).json({ error: 'auth' });
+            return;
+        }
+
+        if (error) throw error;
+
+        const mainId = results.insertId; // get the ID of the inserted row in the basicinfo table
+
+        // insert data into the about table
+        // Handle 'about' data
+        if (about && about.length > 0) {
+            const aboutData = about.map(text => ({ main_id: mainId, text }));
+            connection.query('INSERT INTO about (main_id, text) VALUES ?', [aboutData.map(obj => Object.values(obj))], (error, results, fields) => {
+                if (error) throw error;
+            });
+        }
+
+
+        if(numbers && numbers.length>0) {
+            // insert data into the numbers table
+            const numbersData = numbers.map((phone) => {
+                return { main_id: mainId, phone };
+            });
+            connection.query('INSERT INTO numbers (main_id, phone) VALUES ?', [numbersData.map((obj) => Object.values(obj))], (error, results, fields) => {
+                if (error) throw error;
+            });
+        }
+
+        if(photos && photos.length>0) {
+            // insert data into the photos table
+            const photosData = photos.map((photo_url) => {
+                return { main_id: mainId, photo_url };
+            });
+            connection.query('INSERT INTO photos (main_id, photo_url) VALUES ?', [photosData.map((obj) => Object.values(obj))], (error, results, fields) => {
+                if (error) throw error;
+            });
+        }
+
+        if (products && products.length>0) {
+            // insert data into the products table
+            const productsData = products.map((product) => {
+                return { main_id: mainId, name: product.name, image: product.image };
+            });
+            connection.query('INSERT INTO products (main_id, name, image) VALUES ?', [productsData.map((obj) => Object.values(obj))], (error, results, fields) => {
+                if (error) throw error;
+            });
+        }
+
+        if(videos && videos.length>0) {
+            // insert data into the video table
+            const videosData = videos.map((video_url) => {
+                return { main_id: mainId, video_url };
+            });
+            connection.query('INSERT INTO video (main_id, video_url) VALUES ?', [videosData.map((obj) => Object.values(obj))], (error, results, fields) => {
+                if (error) throw error;
+            });
+        }
+
+        res.status(200).json({ message: 'Data inserted successfully.' });
+    });
+});
+
 app.listen(process.env.PORT || 4200, () => {
-})
+    console.log('Server started on port ' + process.env.PORT);
+});
