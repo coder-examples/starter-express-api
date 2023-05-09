@@ -99,7 +99,7 @@ app.post('/insert', (req, res) => {
             const {photos = [], videos = [], numbers = [], about = [], products = []} = req.body;
             con.query(`INSERT INTO basicinfo
                             (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire)
-                            VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire};")` , (err, result) => {
+                            VALUES  ("${logo}", "${company_name}", "${holder_name}", "${holder_post}", "${email}", "${map}", "${facebook}", "${instagram}", "${twitter}", "${youtube}", "${nature}", "${product_or_service}", "${address}", 0, "${website}", "${expire}")` , (err, result) => {
                 if(err) {
                     error = 'basicinfo: ' + `INSERT INTO basicinfo
                             (logo, company_name, holder_name, holder_post, email, map, facebook, instagram, twitter, youtube, nature, product_or_service, address, views, website, expire)
