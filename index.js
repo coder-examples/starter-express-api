@@ -89,6 +89,9 @@ app.get('/', (req, res) => {
 app.post('/insert', (req, res) => {
     let error = false;
     let main_id = 1;
+    console.log(1,Buffer.from(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS).toString('base64'))
+    console.log(2,req.headers['auth'])
+    console.log(3,{a:process.env.AUTH_ADMIN, b:process.env.ADMIN_PASS})
     if(req.headers['auth'] === `${Buffer.from(process.env.AUTH_ADMIN + ':' + process.env.AUTH_ADMIN_PASS).toString('base64')}`) {
         try {
             const { expire, logo = '', company_name = 'NULL', holder_name = 'NULL', holder_post = 'NULL', email = 'NULL', map = 'NULL', facebook = 'NULL', instagram = 'NULL', twitter = 'NULL', youtube = 'NULL', nature = 'NULL', product_or_service = 1, address = 'NULL', website = 'NULL' } = req.body;
